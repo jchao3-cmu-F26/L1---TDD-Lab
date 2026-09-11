@@ -4,6 +4,11 @@ import java.util.Set;
 public class SocialNetwork implements ISocialNetwork {
 	
 	private Set<Account> accounts = new HashSet<Account>();
+	private Account loggedInUser = null;
+
+	public Account getLoggedInUser() {
+		return loggedInUser;
+	}
 
 	// join SN with a new user name
 	public Account join(String userName) {
@@ -37,88 +42,17 @@ public class SocialNetwork implements ISocialNetwork {
 		}
 		return members;
 	}
-	
-	// from my account, send a friend request to user with userName from my account
-	public void sendFriendshipTo(String userName, Account me) {
-		Account accountForUserName = findAccountForUserName(userName);
-		if (accountForUserName == null) {
-			return;
-		}
-		accountForUserName.requestFriendship(me);
-	}
-
-	// from my account, accept a pending friend request from another user with userName
-	public void acceptFriendshipFrom(String userName, Account me) {
-		Account accountForUserName = findAccountForUserName(userName);
-		if (accountForUserName == null) {
-			return;
-		}
-		accountForUserName.friendshipAccepted(me);
-	}
-
-	public void rejectFriendshipFrom(String herUserName, Account me) {
-		Account accountForUserName = findAccountForUserName(herUserName);
-		if (accountForUserName == null) {
-			return;
-		}
-		accountForUserName.friendshipRejected(me);
-	}
-
-
-	public void acceptAllFriendshipsTo(Account me) {
-		if (me == null) {
-			return;
-		}
-		Set<String> pending = new HashSet<String>(me.getIncomingRequests());
-		for (String requesterName : pending) {
-			acceptFriendshipFrom(requesterName, me);
-		}
-	}
-
-
-	public void rejectAllFriendshipsTo(Account me) {
-		if (me == null) {
-			return;
-		}
-		Set<String> pending = new HashSet<String>(me.getIncomingRequests());
-		for (String requesterName : pending) {
-			rejectFriendshipFrom(requesterName, me);
-		}
-	}
-
-	public void autoAcceptFriendshipsTo(Account me) {
-		if (me == null) {
-			return;
-		}
-		me.autoAcceptFriendships();
-	}
-
-	public void sendFriendshipCancellationTo(String userName, Account me) {
-		Account accountForUserName = findAccountForUserName(userName);
-		if (accountForUserName == null) {
-			return;
-		}
-		accountForUserName.cancelFriendship(me);
-	}
-
-	public void leave(Account me) {
-		if (me == null) {
-			return;
-		}
-		for (Account each : accounts) {
-			if (each.hasFriend(me.getUserName())) {
-				each.cancelFriendship(me);
-			}
-			each.getIncomingRequests().remove(me.getUserName());
-			each.getOutgoingRequests().remove(me.getUserName());
-		}
-		accounts.remove(me);
-	}
 
 	@Override
 	public Account login(Account me) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'login'");
+		if (me == null) {
+			return null;
+		}
+		if (findAccountForUserName(me.getUserName()) == null) {
+			return null;
+		}
+		loggedInUser = me;
+		return loggedInUser;
 	}
 
 	@Override
@@ -129,8 +63,15 @@ public class SocialNetwork implements ISocialNetwork {
 
 	@Override
 	public void sendFriendshipTo(String userName) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'sendFriendshipTo'");
+		Account me = getLoggedInUser();
+		if (me == null) {
+			return;
+		}
+		Account accountForUserName = findAccountForUserName(userName);
+		if (accountForUserName == null) {
+			return;
+		}
+		accountForUserName.requestFriendship(me);
 	}
 
 	@Override
@@ -147,38 +88,74 @@ public class SocialNetwork implements ISocialNetwork {
 
 	@Override
 	public void sendFriendshipCancellationTo(String userName) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'sendFriendshipCancellationTo'");
+		Account me = getLoggedInUser();
+		if (me == null) {
+			return;
+		}
+		Account accountForUserName = findAccountForUserName(userName);
+		if (accountForUserName == null) {
+			return;
+		}
+		accountForUserName.cancelFriendship(me);
 	}
 
 	@Override
 	public void acceptFriendshipFrom(String userName) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'acceptFriendshipFrom'");
+		Account me = getLoggedInUser();
+		if (me == null) {
+			return;
+		}
+		Account accountForUserName = findAccountForUserName(userName);
+		if (accountForUserName == null) {
+			return;
+		}
+		accountForUserName.friendshipAccepted(me);
 	}
 
 	@Override
 	public void acceptAllFriendships() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'acceptAllFriendships'");
+		Account me = getLoggedInUser();
+		if (me == null) {
+			return;
+		}
+		Set<String> pending = new HashSet<String>(me.getIncomingRequests());
+		for (String requesterName : pending) {
+			acceptFriendshipFrom(requesterName);
+		}
 	}
 
 	@Override
 	public void rejectFriendshipFrom(String userName) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'rejectFriendshipFrom'");
+		Account me = getLoggedInUser();
+		if (me == null) {
+			return;
+		}
+		Account accountForUserName = findAccountForUserName(userName);
+		if (accountForUserName == null) {
+			return;
+		}
+		accountForUserName.friendshipRejected(me);
 	}
 
 	@Override
 	public void rejectAllFriendships() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'rejectAllFriendships'");
+		Account me = getLoggedInUser();
+		if (me == null) {
+			return;
+		}
+		Set<String> pending = new HashSet<String>(me.getIncomingRequests());
+		for (String requesterName : pending) {
+			rejectFriendshipFrom(requesterName);
+		}
 	}
 
 	@Override
 	public void autoAcceptFriendships() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'autoAcceptFriendships'");
+		Account me = getLoggedInUser();
+		if (me == null) {
+			return;
+		}
+		me.autoAcceptFriendships();
 	}
 
 	@Override
@@ -195,7 +172,20 @@ public class SocialNetwork implements ISocialNetwork {
 
 	@Override
 	public void leave() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'leave'");
+		Account me = getLoggedInUser();
+		if (me == null) {
+			return;
+		}
+		for (Account each : accounts) {
+			if (each.hasFriend(me.getUserName())) {
+				each.cancelFriendship(me);
+			}
+			each.getIncomingRequests().remove(me.getUserName());
+			each.getOutgoingRequests().remove(me.getUserName());
+		}
+		if (loggedInUser == me) {
+			loggedInUser = null;
+		}
+		accounts.remove(me);
 	}
 }
