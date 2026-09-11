@@ -1,35 +1,34 @@
 LAB REPORT - TDD - L1
 
-Name: 
-Andrew ID:
+Name: Timmy Lin
+Andrew ID: chunting
 
-1. Summary 
+1. Summary
 
-// Describe briefly what you did during this lab.
-// List the tasks performed.
-// How many tests did you end up writing? 
- 
-2. What worked well? 
+I completed T2 through T6 on SocialNetwork and Account. I wrote the test first, then the code.
 
-// Describe one positive aspect of using TDD. Give a specific example.
+- T2: login(Account) and getLoggedInUser(). I changed the old tests to login first, then removed the methods that still took an Account.
+- T3: hasMember(String)
+- T4: cancelAutoAcceptFriendships()
+- T5: block(String)
+- T6: unblock(String)
 
-3. What didn't work well? 
+I wrote 26 new tests: 5 for login, 4 for hasMember, 4 for cancel auto-accept, 7 for block, 6 for unblock. I also updated the older SocialNetwork tests so they login before they send requests or leave. AccountTest plus SocialNetworkTest is 94 tests, all passing. I stopped before T7.
 
-// What is the worst challenge you faced when applying TDD?
-// Give a specific example. 
+2. What worked well?
+
+Doing one failing test at a time kept me from rewriting listMembers, hasMember, and sendFriendshipTo in the same edit.
+
+The first block test only checked listMembers: after Hakan blocked Cecile, she did not see "Hakan". I left hasMember alone until its test failed. sendFriendshipTo still delivered a request until I added blockedMemberCannotSendFriendshipToBlocker. For unblock, the first test threw UnsupportedOperationException. I only removed the name from the blocked set. After that, Cecile could see Hakan again and send a request. I did not add new visibility code for T6.
+
+3. What didn't work well?
+
+The hard part was inventing the edge tests, not writing the production code.
+
+For block I saw the main case quickly: Hakan blocks Cecile, she cannot see him. I was slower on the rest. Do I test block with no one logged in? block(null)? a name that never joined? blocking myself? blocking the same person twice? I often wrote those tests after the main path was already green, so they passed on the first run. Same pattern on login: the happy path was obvious; null and an unknown account were not.
 
 4. How would you do it differently next time when applying TDD?
 
-// Relate this to the challenge. Provide a lesson learned.  
+Before the first test I would write a short list of edges: no login, null, unknown name, self, and repeat. Each of those should fail once before I add the corresponding if-return. I would not save them for the end, when the code already handles them by accident.
 
 5. Comments and Suggestions on the Lab (Optional)
-
-// Be as specific as possible.
-// Point out any problems you encountered with the exercises performed.
-// Any bugs in assignment description? 
-// If compelled, point out your disagreements with design and implementation decisions imposed on you. 
-// Use bullet points.
-
-
-/** This report should be about one page long. **/
-/** For acceptable and non-acceptable examples, see CourseInfo document **/
