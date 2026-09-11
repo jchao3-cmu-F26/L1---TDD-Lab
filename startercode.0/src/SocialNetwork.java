@@ -159,8 +159,11 @@ public class SocialNetwork implements ISocialNetwork {
 
 	@Override
 	public void cancelAutoAcceptFriendships() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'cancelAutoAcceptFriendships'");
+		Account me = getLoggedInUser();
+		if (me == null) {
+			return;
+		}
+		me.cancelAutoAcceptFriendships();
 	}
 
 	@Override

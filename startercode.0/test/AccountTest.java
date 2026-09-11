@@ -234,6 +234,15 @@ public class AccountTest {
 		assertEquals(1, her.getFriends().size());
 	}
 
+	@Test
+	public void cancelAutoAcceptFriendshipLeavesLaterRequestPending() {
+		me.autoAcceptFriendships();
+		me.cancelAutoAcceptFriendships();
+		me.requestFriendship(her);
+		assertFalse(me.hasFriend(her.getUserName()));
+		assertTrue(me.getIncomingRequests().contains(her.getUserName()));
+	}
+
 
 	private void becomeFriends(Account requester, Account receiver) {
 		receiver.requestFriendship(requester);

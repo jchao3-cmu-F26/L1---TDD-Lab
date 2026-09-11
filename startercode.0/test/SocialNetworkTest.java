@@ -374,6 +374,45 @@ public class SocialNetworkTest {
 	}
 
 	@Test
+	public void cancelAutoAcceptRequiresExplicitAcceptanceForFutureRequests() {
+		joinHakanAndCecile();
+		sn.login(me);
+		sn.autoAcceptFriendships();
+		sn.cancelAutoAcceptFriendships();
+		sn.login(her);
+		sn.sendFriendshipTo("Hakan");
+		assertFalse(me.hasFriend("Cecile"));
+		assertFalse(her.hasFriend("Hakan"));
+		assertTrue(me.getIncomingRequests().contains("Cecile"));
+	}
+
+	@Test
+	public void cancelAutoAcceptStillAllowsExplicitAccept() {
+		joinHakanAndCecile();
+		sn.login(me);
+		sn.autoAcceptFriendships();
+		sn.cancelAutoAcceptFriendships();
+		sn.login(her);
+		sn.sendFriendshipTo("Hakan");
+		sn.login(me);
+		sn.acceptFriendshipFrom("Cecile");
+		assertTrue(me.hasFriend("Cecile"));
+		assertTrue(her.hasFriend("Hakan"));
+	}
+
+	@Test
+	public void cancelAutoAcceptAppliesOnlyToLoggedInMember() {
+		joinHakanAndCecile();
+		sn.login(me);
+		sn.autoAcceptFriendships();
+		sn.login(her);
+		sn.cancelAutoAcceptFriendships();
+		sn.sendFriendshipTo("Hakan");
+		assertTrue(me.hasFriend("Cecile"));
+		assertTrue(her.hasFriend("Hakan"));
+	}
+
+	@Test
 	public void cancelFriendshipRemovesEachOtherFromFriends() {
 		joinHakanAndCecile();
 		sn.login(me);

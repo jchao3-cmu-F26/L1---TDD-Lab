@@ -91,6 +91,10 @@ public class Account  {
 		Auto = true;
 	}
 
+	public void cancelAutoAcceptFriendships() {
+		Auto = false;
+	}
+
 	public Set<String> getFriends() {
 		return friends;
 	}
