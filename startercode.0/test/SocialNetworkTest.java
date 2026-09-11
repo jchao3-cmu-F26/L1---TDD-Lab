@@ -512,6 +512,87 @@ public class SocialNetworkTest {
 		assertTrue(her.hasFriend("Hakan"));
 	}
 
+	@Test
+	public void blockedMemberDoesNotSeeBlockerInListMembers() {
+		joinHakanAndCecile();
+		sn.login(me);
+		sn.block("Cecile");
+		sn.login(her);
+		Collection<String> members = sn.listMembers();
+		assertFalse(members.contains("Hakan"));
+		assertTrue(members.contains("Cecile"));
+	}
+
+	@Test
+	public void blockedMemberHasMemberReturnsFalseForBlocker() {
+		joinHakanAndCecile();
+		sn.login(me);
+		sn.block("Cecile");
+		sn.login(her);
+		assertFalse(sn.hasMember("Hakan"));
+		assertTrue(sn.hasMember("Cecile"));
+	}
+
+	@Test
+	public void blockedMemberCannotSendFriendshipToBlocker() {
+		joinHakanAndCecile();
+		sn.login(me);
+		sn.block("Cecile");
+		sn.login(her);
+		sn.sendFriendshipTo("Hakan");
+		assertEquals(0, me.getIncomingRequests().size());
+		assertEquals(0, her.getOutgoingRequests().size());
+		assertFalse(me.hasFriend("Cecile"));
+	}
+
+	@Test
+	public void blockerStillSeesBlockedMember() {
+		joinHakanAndCecile();
+		sn.login(me);
+		sn.block("Cecile");
+		assertTrue(sn.listMembers().contains("Cecile"));
+		assertTrue(sn.hasMember("Cecile"));
+	}
+
+	@Test
+	public void blockWithoutLoginDoesNothing() {
+		joinHakanAndCecile();
+		sn.block("Cecile");
+		sn.login(her);
+		assertTrue(sn.listMembers().contains("Hakan"));
+		assertTrue(sn.hasMember("Hakan"));
+		sn.login(me);
+		assertTrue(sn.listMembers().contains("Cecile"));
+		assertTrue(sn.hasMember("Cecile"));
+	}
+
+	@Test
+	public void blockNullUnknownOrSelfLeavesMembersVisible() {
+		joinHakanAndCecile();
+		sn.login(me);
+		sn.block(null);
+		sn.block("Ghost");
+		sn.block("Hakan");
+		Collection<String> members = sn.listMembers();
+		assertEquals(2, members.size());
+		assertTrue(members.contains("Hakan"));
+		assertTrue(members.contains("Cecile"));
+	}
+
+	@Test
+	public void blockingSameMemberTwiceBehavesLikeBlockingOnce() {
+		joinHakanAndCecile();
+		sn.login(me);
+		sn.block("Cecile");
+		sn.block("Cecile");
+		sn.login(her);
+		assertFalse(sn.hasMember("Hakan"));
+		assertFalse(sn.listMembers().contains("Hakan"));
+		sn.login(me);
+		assertTrue(sn.hasMember("Cecile"));
+		assertTrue(sn.listMembers().contains("Cecile"));
+	}
+
 	private void joinHakanAndCecile() {
 		me = sn.join("Hakan");
 		her = sn.join("Cecile");

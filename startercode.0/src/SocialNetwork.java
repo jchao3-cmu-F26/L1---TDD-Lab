@@ -37,7 +37,11 @@ public class SocialNetwork implements ISocialNetwork {
 	// list user names of all members
 	public Set<String> listMembers() {
 		Set<String> members = new HashSet<String>();
+		Account me = getLoggedInUser();
 		for (Account each : accounts) {
+			if (me != null && each.hasBlocked(me.getUserName())) {
+				continue;
+			}
 			members.add(each.getUserName());
 		}
 		return members;
@@ -57,7 +61,15 @@ public class SocialNetwork implements ISocialNetwork {
 
 	@Override
 	public boolean hasMember(String userName) {
-		return findAccountForUserName(userName) != null;
+		Account found = findAccountForUserName(userName);
+		if (found == null) {
+			return false;
+		}
+		Account me = getLoggedInUser();
+		if (me != null && found.hasBlocked(me.getUserName())) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override
@@ -70,13 +82,22 @@ public class SocialNetwork implements ISocialNetwork {
 		if (accountForUserName == null) {
 			return;
 		}
+		if (accountForUserName.hasBlocked(me.getUserName())) {
+			return;
+		}
 		accountForUserName.requestFriendship(me);
 	}
 
 	@Override
 	public void block(String userName) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'block'");
+		Account me = getLoggedInUser();
+		if (me == null) {
+			return;
+		}
+		if (findAccountForUserName(userName) == null) {
+			return;
+		}
+		me.block(userName);
 	}
 
 	@Override
