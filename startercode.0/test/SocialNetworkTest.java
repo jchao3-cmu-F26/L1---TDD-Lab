@@ -593,6 +593,75 @@ public class SocialNetworkTest {
 		assertTrue(sn.listMembers().contains("Cecile"));
 	}
 
+	@Test
+	public void unblockMakesBlockerVisibleInListMembersAgain() {
+		joinHakanAndCecile();
+		sn.login(me);
+		sn.block("Cecile");
+		sn.unblock("Cecile");
+		sn.login(her);
+		assertTrue(sn.listMembers().contains("Hakan"));
+	}
+
+	@Test
+	public void unblockMakesHasMemberTrueForPreviouslyBlockedViewer() {
+		joinHakanAndCecile();
+		sn.login(me);
+		sn.block("Cecile");
+		sn.unblock("Cecile");
+		sn.login(her);
+		assertTrue(sn.hasMember("Hakan"));
+	}
+
+	@Test
+	public void unblockAllowsFriendshipRequestAndAccept() {
+		joinHakanAndCecile();
+		sn.login(me);
+		sn.block("Cecile");
+		sn.unblock("Cecile");
+		sn.login(her);
+		sn.sendFriendshipTo("Hakan");
+		sn.login(me);
+		sn.acceptFriendshipFrom("Cecile");
+		assertTrue(me.hasFriend("Cecile"));
+		assertTrue(her.hasFriend("Hakan"));
+	}
+
+	@Test
+	public void unblockWithoutLoginDoesNotLiftExistingBlock() {
+		joinHakanAndCecile();
+		me.block("Cecile");
+		sn.unblock("Cecile");
+		sn.login(her);
+		assertFalse(sn.hasMember("Hakan"));
+		assertFalse(sn.listMembers().contains("Hakan"));
+	}
+
+	@Test
+	public void unblockUnknownNullOrNeverBlockedDoesNotThrow() {
+		joinHakanAndCecile();
+		sn.login(me);
+		sn.unblock(null);
+		sn.unblock("Ghost");
+		sn.unblock("Cecile");
+		assertTrue(sn.hasMember("Cecile"));
+		sn.login(her);
+		assertTrue(sn.hasMember("Hakan"));
+	}
+
+	@Test
+	public void unblockOneMemberLeavesOtherBlockInPlace() {
+		Account another = joinHakanCecileAndSerra();
+		sn.login(me);
+		sn.block("Cecile");
+		sn.block("Serra");
+		sn.unblock("Cecile");
+		sn.login(her);
+		assertTrue(sn.hasMember("Hakan"));
+		sn.login(another);
+		assertFalse(sn.hasMember("Hakan"));
+	}
+
 	private void joinHakanAndCecile() {
 		me = sn.join("Hakan");
 		her = sn.join("Cecile");

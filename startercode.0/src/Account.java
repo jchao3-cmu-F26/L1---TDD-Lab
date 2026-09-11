@@ -107,6 +107,10 @@ public class Account  {
 		return blocked.contains(userName);
 	}
 
+	public void unblock(String userName) {
+		blocked.remove(userName);
+	}
+
 	public Set<String> getFriends() {
 		return friends;
 	}
