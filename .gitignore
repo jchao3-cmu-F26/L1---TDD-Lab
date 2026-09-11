@@ -1,0 +1,4 @@
+# Vocareum course workspace (contains submission token)
+.voc/
+.gitconfig
+todo/
