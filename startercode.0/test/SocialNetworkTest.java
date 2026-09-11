@@ -45,6 +45,31 @@ public class SocialNetworkTest {
 		assertTrue(members.contains("Hakan"));
 		assertTrue(members.contains("Cecile"));
 	}
+
+	@Test
+	public void hasMemberReturnsTrueAfterUserJoins() {
+		sn.join("Hakan");
+		assertTrue(sn.hasMember("Hakan"));
+	}
+
+	@Test
+	public void hasMemberReturnsFalseForUnknownUser() {
+		sn.join("Hakan");
+		assertFalse(sn.hasMember("Cecile"));
+	}
+
+	@Test
+	public void hasMemberReturnsFalseWhenNetworkEmpty() {
+		assertFalse(sn.hasMember("Hakan"));
+	}
+
+	@Test
+	public void hasMemberReturnsFalseAfterMemberLeaves() {
+		me = sn.join("Hakan");
+		sn.login(me);
+		sn.leave();
+		assertFalse(sn.hasMember("Hakan"));
+	}
 	
 	@Test
 	public void sendFriendshipToAddsRequesterToIncomingRequests() {

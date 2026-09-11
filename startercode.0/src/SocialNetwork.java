@@ -57,8 +57,7 @@ public class SocialNetwork implements ISocialNetwork {
 
 	@Override
 	public boolean hasMember(String userName) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'hasMember'");
+		return findAccountForUserName(userName) != null;
 	}
 
 	@Override
