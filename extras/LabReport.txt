@@ -1,0 +1,35 @@
+LAB REPORT - TDD - L1
+
+Name: 
+Andrew ID:
+
+1. Summary 
+
+// Describe briefly what you did during this lab.
+// List the tasks performed.
+// How many tests did you end up writing? 
+ 
+2. What worked well? 
+
+// Describe one positive aspect of using TDD. Give a specific example.
+
+3. What didn't work well? 
+
+// What is the worst challenge you faced when applying TDD?
+// Give a specific example. 
+
+4. How would you do it differently next time when applying TDD?
+
+// Relate this to the challenge. Provide a lesson learned.  
+
+5. Comments and Suggestions on the Lab (Optional)
+
+// Be as specific as possible.
+// Point out any problems you encountered with the exercises performed.
+// Any bugs in assignment description? 
+// If compelled, point out your disagreements with design and implementation decisions imposed on you. 
+// Use bullet points.
+
+
+/** This report should be about one page long. **/
+/** For acceptable and non-acceptable examples, see CourseInfo document **/
