@@ -193,6 +193,11 @@ public class SocialNetwork implements ISocialNetwork {
 	@Override
 	public Set<String> recommendFriends() {
 		// TODO Auto-generated method stub
+		Account me = getLoggedInUser();
+		if (me == null) {
+			return null;
+		}
+		
 		throw new UnsupportedOperationException("Unimplemented method 'recommendFriends'");
 	}
 

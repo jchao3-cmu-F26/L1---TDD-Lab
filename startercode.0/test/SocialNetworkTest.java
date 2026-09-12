@@ -662,6 +662,134 @@ public class SocialNetworkTest {
 		assertFalse(sn.hasMember("Hakan"));
 	}
 
+	@Test
+	public void recommendFriendsIncludesMemberWithExactlyTwoMutualFriends() {
+		Account another = joinHakanCecileAndSerra();
+		Account him = sn.join("Rafal");
+		sn.login(me);
+		sn.sendFriendshipTo("Serra");
+		sn.sendFriendshipTo("Rafal");
+		sn.login(her);
+		sn.sendFriendshipTo("Serra");
+		sn.sendFriendshipTo("Rafal");
+		sn.login(another);
+		sn.acceptFriendshipFrom("Hakan");
+		sn.acceptFriendshipFrom("Cecile");
+		sn.login(him);
+		sn.acceptFriendshipFrom("Hakan");
+		sn.acceptFriendshipFrom("Cecile");
+		sn.login(me);
+		assertTrue(sn.recommendFriends().contains("Cecile"));
+	}
+
+	@Test
+	public void recommendFriendsWithoutLoginReturnsNull() {
+		joinHakanAndCecile();
+		assertNull(sn.recommendFriends());
+	}
+
+	@Test
+	public void recommendFriendsWithLoginAccountWithNoFriendsReturnsEmptySet() {
+		joinHakanAndCecile();
+		sn.login(me);
+		assertTrue(sn.recommendFriends().size() == 0);
+	}
+
+	@Test
+	public void recommendFriendsWithFriendWhoSharesExactlyOneMutualFriends() {
+		Account another = joinHakanCecileAndSerra();
+		sn.login(me);
+		sn.sendFriendshipTo("Serra");
+		sn.login(her);
+		sn.sendFriendshipTo("Serra");
+		sn.login(another);
+		sn.acceptFriendshipFrom("Hakan");
+		sn.acceptFriendshipFrom("Cecile");
+		sn.login(me);
+		assertTrue(sn.recommendFriends().size() == 0);
+	}
+
+	@Test
+	public void recommendFriendsWithFriendWhoAlreadyHasTwoMutualFriends() {
+		Account another = joinHakanCecileAndSerra();
+		Account him = sn.join("Rafal");
+		sn.login(me);
+		sn.sendFriendshipTo("Serra");
+		sn.sendFriendshipTo("Rafal");
+		sn.sendFriendshipTo("Cecile");
+		sn.login(her);
+		sn.acceptFriendshipFrom("Hakan");
+		sn.sendFriendshipTo("Serra");
+		sn.sendFriendshipTo("Rafal");
+		sn.login(another);
+		sn.acceptFriendshipFrom("Hakan");
+		sn.acceptFriendshipFrom("Cecile");
+		sn.login(him);
+		sn.acceptFriendshipFrom("Hakan");
+		sn.acceptFriendshipFrom("Cecile");
+		sn.login(me);
+		assertTrue(sn.recommendFriends().size() == 0);
+	}
+
+	@Test
+	public void recommendFriendsWithMoreThanTwoMutualFriends() {
+		Account another = joinHakanCecileAndSerra();
+		Account him = sn.join("Rafal");
+		Account student = sn.join("Jeffery");
+		sn.login(me);
+		sn.sendFriendshipTo("Serra");
+		sn.sendFriendshipTo("Rafal");
+		sn.sendFriendshipTo("Jeffery");
+		sn.login(her);
+		sn.sendFriendshipTo("Serra");
+		sn.sendFriendshipTo("Rafal");
+		sn.sendFriendshipTo("Jeffery");
+		sn.login(another);
+		sn.acceptFriendshipFrom("Hakan");
+		sn.acceptFriendshipFrom("Cecile");
+		sn.login(him);
+		sn.acceptFriendshipFrom("Hakan");
+		sn.acceptFriendshipFrom("Cecile");
+		sn.login(student);
+		sn.acceptFriendshipFrom("Hakan");
+		sn.acceptFriendshipFrom("Cecile");
+		sn.login(me);
+		assertTrue(sn.recommendFriends().size() == 1);
+	}
+
+	@Test
+	public void recommendFriendsDoesNotContainLoggedInUser() {
+		Account another = joinHakanCecileAndSerra();
+		Account him = sn.join("Rafal");
+		Account student = sn.join("Jeffery");
+		sn.login(me);
+		sn.sendFriendshipTo("Serra");
+		sn.sendFriendshipTo("Rafal");
+		sn.sendFriendshipTo("Jeffery");
+		sn.login(her);
+		sn.sendFriendshipTo("Serra");
+		sn.sendFriendshipTo("Rafal");
+		sn.sendFriendshipTo("Jeffery");
+		sn.login(another);
+		sn.acceptFriendshipFrom("Hakan");
+		sn.acceptFriendshipFrom("Cecile");
+		sn.login(him);
+		sn.acceptFriendshipFrom("Hakan");
+		sn.acceptFriendshipFrom("Cecile");
+		sn.login(student);
+		sn.acceptFriendshipFrom("Hakan");
+		sn.acceptFriendshipFrom("Cecile");
+		sn.login(me);
+		assertFalse(sn.recommendFriends().contains("Hakan"));
+	}
+
+	@Test
+	public void recommendFriendsWithNoOtherUsersReturnEmptyList() {
+		me = sn.join("Hakan");
+		sn.login(me);
+		assertTrue(sn.recommendFriends().size() == 0);
+	}
+
 	private void joinHakanAndCecile() {
 		me = sn.join("Hakan");
 		her = sn.join("Cecile");
