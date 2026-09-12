@@ -6,7 +6,10 @@ public class SocialNetwork implements ISocialNetwork {
 	private Set<Account> accounts = new HashSet<Account>();
 	private Account loggedInUser = null;
 
-	public Account getLoggedInUser() {
+	public Account getLoggedInUser()  throws NoUserLoggedInException {
+		if (loggedInUser == null) {
+			throw new NoUserLoggedInException();
+		}
 		return loggedInUser;
 	}
 
@@ -35,9 +38,9 @@ public class SocialNetwork implements ISocialNetwork {
 	}
 	
 	// list user names of all members
-	public Set<String> listMembers() {
-		Set<String> members = new HashSet<String>();
+	public Set<String> listMembers() throws NoUserLoggedInException {
 		Account me = getLoggedInUser();
+		Set<String> members = new HashSet<String>();
 		for (Account each : accounts) {
 			if (me != null && each.hasBlocked(me.getUserName())) {
 				continue;
@@ -60,12 +63,12 @@ public class SocialNetwork implements ISocialNetwork {
 	}
 
 	@Override
-	public boolean hasMember(String userName) {
+	public boolean hasMember(String userName) throws NoUserLoggedInException {
+		Account me = getLoggedInUser();
 		Account found = findAccountForUserName(userName);
 		if (found == null) {
 			return false;
 		}
-		Account me = getLoggedInUser();
 		if (me != null && found.hasBlocked(me.getUserName())) {
 			return false;
 		}
@@ -73,11 +76,8 @@ public class SocialNetwork implements ISocialNetwork {
 	}
 
 	@Override
-	public void sendFriendshipTo(String userName) {
+	public void sendFriendshipTo(String userName) throws NoUserLoggedInException {
 		Account me = getLoggedInUser();
-		if (me == null) {
-			return;
-		}
 		Account accountForUserName = findAccountForUserName(userName);
 		if (accountForUserName == null) {
 			return;
@@ -89,32 +89,33 @@ public class SocialNetwork implements ISocialNetwork {
 	}
 
 	@Override
-	public void block(String userName) {
+	public void block(String userName) throws NoUserLoggedInException {
 		Account me = getLoggedInUser();
-		if (me == null) {
-			return;
-		}
 		if (findAccountForUserName(userName) == null) {
 			return;
 		}
+		Account blockedAccount = findAccountForUserName(userName);
 		me.block(userName);
+		me.cancelFriendship(blockedAccount);
+		if (me.getIncomingRequests().contains(userName)) {
+			me.getIncomingRequests().remove(userName);
+			blockedAccount.getOutgoingRequests().remove(me.getUserName());
+		}
+		if (me.getOutgoingRequests().contains(userName)) {
+			me.getOutgoingRequests().remove(userName);
+			blockedAccount.getIncomingRequests().remove(me.getUserName());
+		}
 	}
 
 	@Override
-	public void unblock(String userName) {
+	public void unblock(String userName) throws NoUserLoggedInException {
 		Account me = getLoggedInUser();
-		if (me == null) {
-			return;
-		}
 		me.unblock(userName);
 	}
 
 	@Override
-	public void sendFriendshipCancellationTo(String userName) {
+	public void sendFriendshipCancellationTo(String userName) throws NoUserLoggedInException {
 		Account me = getLoggedInUser();
-		if (me == null) {
-			return;
-		}
 		Account accountForUserName = findAccountForUserName(userName);
 		if (accountForUserName == null) {
 			return;
@@ -123,11 +124,8 @@ public class SocialNetwork implements ISocialNetwork {
 	}
 
 	@Override
-	public void acceptFriendshipFrom(String userName) {
+	public void acceptFriendshipFrom(String userName) throws NoUserLoggedInException {
 		Account me = getLoggedInUser();
-		if (me == null) {
-			return;
-		}
 		Account accountForUserName = findAccountForUserName(userName);
 		if (accountForUserName == null) {
 			return;
@@ -136,11 +134,8 @@ public class SocialNetwork implements ISocialNetwork {
 	}
 
 	@Override
-	public void acceptAllFriendships() {
+	public void acceptAllFriendships() throws NoUserLoggedInException {
 		Account me = getLoggedInUser();
-		if (me == null) {
-			return;
-		}
 		Set<String> pending = new HashSet<String>(me.getIncomingRequests());
 		for (String requesterName : pending) {
 			acceptFriendshipFrom(requesterName);
@@ -148,11 +143,8 @@ public class SocialNetwork implements ISocialNetwork {
 	}
 
 	@Override
-	public void rejectFriendshipFrom(String userName) {
+	public void rejectFriendshipFrom(String userName) throws NoUserLoggedInException {
 		Account me = getLoggedInUser();
-		if (me == null) {
-			return;
-		}
 		Account accountForUserName = findAccountForUserName(userName);
 		if (accountForUserName == null) {
 			return;
@@ -161,11 +153,8 @@ public class SocialNetwork implements ISocialNetwork {
 	}
 
 	@Override
-	public void rejectAllFriendships() {
+	public void rejectAllFriendships() throws NoUserLoggedInException {
 		Account me = getLoggedInUser();
-		if (me == null) {
-			return;
-		}
 		Set<String> pending = new HashSet<String>(me.getIncomingRequests());
 		for (String requesterName : pending) {
 			rejectFriendshipFrom(requesterName);
@@ -173,29 +162,20 @@ public class SocialNetwork implements ISocialNetwork {
 	}
 
 	@Override
-	public void autoAcceptFriendships() {
+	public void autoAcceptFriendships() throws NoUserLoggedInException {
 		Account me = getLoggedInUser();
-		if (me == null) {
-			return;
-		}
 		me.autoAcceptFriendships();
 	}
 
 	@Override
-	public void cancelAutoAcceptFriendships() {
+	public void cancelAutoAcceptFriendships() throws NoUserLoggedInException {
 		Account me = getLoggedInUser();
-		if (me == null) {
-			return;
-		}
 		me.cancelAutoAcceptFriendships();
 	}
 
 	@Override
-	public Set<String> recommendFriends() {
+	public Set<String> recommendFriends() throws NoUserLoggedInException {
 		Account me = getLoggedInUser();
-		if (me == null) {
-			return null;
-		}
 		Set<String> friends = me.getFriends();
 		Set<String> recommendations = new HashSet<String>();
 		for (Account each : accounts) {
@@ -220,11 +200,8 @@ public class SocialNetwork implements ISocialNetwork {
 	}
 
 	@Override
-	public void leave() {
+	public void leave() throws NoUserLoggedInException {
 		Account me = getLoggedInUser();
-		if (me == null) {
-			return;
-		}
 		for (Account each : accounts) {
 			if (each.hasFriend(me.getUserName())) {
 				each.cancelFriendship(me);

@@ -30,16 +30,18 @@ public class SocialNetworkTest {
 	}
 	
 	@Test 
-	public void listMembersAfterOneJoinContainsThatMember() {
-		sn.join("Hakan");
+	public void listMembersAfterOneJoinContainsThatMember() throws NoUserLoggedInException {
+		me = sn.join("Hakan");
+		sn.login(me);
 		Collection<String> members = sn.listMembers();
 		assertEquals(1, members.size());
 		assertTrue(members.contains("Hakan"));
 	}
 	
 	@Test 
-	public void listMembersAfterTwoJoinsContainsBothMembers() {
+	public void listMembersAfterTwoJoinsContainsBothMembers() throws NoUserLoggedInException {
 		joinHakanAndCecile();
+		sn.login(me);
 		Collection<String> members = sn.listMembers();
 		assertEquals(2, members.size());
 		assertTrue(members.contains("Hakan"));
@@ -47,32 +49,44 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void hasMemberReturnsTrueAfterUserJoins() {
-		sn.join("Hakan");
+	public void hasMemberReturnsTrueAfterUserJoins() throws NoUserLoggedInException {
+		me = sn.join("Hakan");
+		sn.login(me);
 		assertTrue(sn.hasMember("Hakan"));
 	}
 
 	@Test
-	public void hasMemberReturnsFalseForUnknownUser() {
-		sn.join("Hakan");
+	public void hasMemberReturnsFalseForUnknownUser() throws NoUserLoggedInException {
+		me = sn.join("Hakan");
+		sn.login(me);
 		assertFalse(sn.hasMember("Cecile"));
 	}
 
 	@Test
-	public void hasMemberReturnsFalseWhenNetworkEmpty() {
-		assertFalse(sn.hasMember("Hakan"));
+	public void hasMemberThrowsExceptionWhenNetworkEmpty() throws NoUserLoggedInException {
+		try {
+			assertFalse(sn.hasMember("Hakan"));
+			fail("Expected NoUserLoggedInException to be thrown");
+		} catch (NoUserLoggedInException e) {
+			// Expected exception, test passes
+		}
 	}
 
 	@Test
-	public void hasMemberReturnsFalseAfterMemberLeaves() {
+	public void hasMemberReturnsThrowsExceptionWhenLoggedInUserLeaves() throws NoUserLoggedInException {
 		me = sn.join("Hakan");
 		sn.login(me);
 		sn.leave();
-		assertFalse(sn.hasMember("Hakan"));
+		try {
+			sn.hasMember("Hakan");
+			fail("Expected NoUserLoggedInException to be thrown");
+		} catch (NoUserLoggedInException e) {
+			// Expected exception, test passes
+		}
 	}
 	
 	@Test
-	public void sendFriendshipToAddsRequesterToIncomingRequests() {
+	public void sendFriendshipToAddsRequesterToIncomingRequests() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.sendFriendshipTo("Cecile");
@@ -80,7 +94,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void sendFriendshipToAddsTargetToOutgoingRequests() {
+	public void sendFriendshipToAddsTargetToOutgoingRequests() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.sendFriendshipTo("Cecile");
@@ -88,7 +102,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void acceptFriendshipFromRemovesTargetFromOutgoingRequests() {
+	public void acceptFriendshipFromRemovesTargetFromOutgoingRequests() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.sendFriendshipTo("Cecile");
@@ -98,7 +112,7 @@ public class SocialNetworkTest {
 	}
 	
 	@Test 
-	public void acceptFriendshipFromAddsRequesterToAcceptersFriends() {
+	public void acceptFriendshipFromAddsRequesterToAcceptersFriends() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.sendFriendshipTo("Cecile");
@@ -108,7 +122,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test 
-	public void acceptFriendshipFromAddsAccepterToRequestersFriends() {
+	public void acceptFriendshipFromAddsAccepterToRequestersFriends() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.sendFriendshipTo("Cecile");
@@ -118,12 +132,17 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void noUserLoggedInInitially() {
-		assertNull(sn.getLoggedInUser());
+	public void noUserLoggedInInitially() throws NoUserLoggedInException {
+		try {
+			sn.getLoggedInUser();
+			fail("Expected NoUserLoggedInException to be thrown");
+		} catch (NoUserLoggedInException e) {
+			// Expected exception, test passes
+		}
 	}
 
 	@Test
-	public void loginReturnsJoinedAccountAndSetsLoggedInUser() {
+	public void loginReturnsJoinedAccountAndSetsLoggedInUser() throws NoUserLoggedInException {
 		me = sn.join("Hakan");
 		Account loggedIn = sn.login(me);
 		assertSame(me, loggedIn);
@@ -131,7 +150,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void loginSwitchesAccountWithoutLogout() {
+	public void loginSwitchesAccountWithoutLogout() throws NoUserLoggedInException {
 		me = sn.join("Hakan");
 		her = sn.join("Cecile");
 		sn.login(me);
@@ -141,7 +160,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void loginNullReturnsNullAndDoesNotChangeLoggedInUser() {
+	public void loginNullReturnsNullAndDoesNotChangeLoggedInUser() throws NoUserLoggedInException {
 		me = sn.join("Hakan");
 		sn.login(me);
 		assertNull(sn.login(null));
@@ -149,15 +168,25 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void loginUnknownAccountReturnsNull() {
+	public void loginUnknownAccountReturnsNull() throws NoUserLoggedInException {
 		Account stranger = new Account("Ghost");
 		assertNull(sn.login(stranger));
-		assertNull(sn.getLoggedInUser());
+		try {
+			sn.getLoggedInUser();
+			fail("Expected NoUserLoggedInException to be thrown");
+		} catch (NoUserLoggedInException e) {
+			// Expected exception, test passes
+		}
 	}
 
 	@Test
-	public void emptyNetworkHasNoMembers() {
-		assertEquals(0, sn.listMembers().size());
+	public void listMembersThrowsExceptionWhenNoUserIsLoggedIn() throws NoUserLoggedInException {
+		try {
+			sn.listMembers();
+			fail("Expected NoUserLoggedInException to be thrown");
+		} catch (NoUserLoggedInException e) {
+			// Expected exception, test passes
+		}
 	}
 
 	@Test
@@ -167,9 +196,10 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void joinWithExistingUserNameLeavesMemberCountUnchanged() {
+	public void joinWithExistingUserNameLeavesMemberCountUnchanged() throws NoUserLoggedInException {
+		me = sn.join("Hakan");
 		sn.join("Hakan");
-		sn.join("Hakan");
+		sn.login(me);
 		assertEquals(1, sn.listMembers().size());
 	}
 
@@ -184,7 +214,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void sendFriendshipToUnknownUserDoesNotAddIncomingRequest() {
+	public void sendFriendshipToUnknownUserDoesNotAddIncomingRequest() throws NoUserLoggedInException {
 		me = sn.join("Hakan");
 		sn.login(me);
 		sn.sendFriendshipTo("Ghost");
@@ -192,7 +222,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void sendFriendshipToSelfDoesNotAddIncomingRequest() {
+	public void sendFriendshipToSelfDoesNotAddIncomingRequest() throws NoUserLoggedInException {
 		me = sn.join("Hakan");
 		sn.login(me);
 		sn.sendFriendshipTo("Hakan");
@@ -200,7 +230,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void acceptFriendshipFromUnknownUserDoesNotAddFriends() {
+	public void acceptFriendshipFromUnknownUserDoesNotAddFriends() throws NoUserLoggedInException {
 		me = sn.join("Hakan");
 		sn.login(me);
 		sn.acceptFriendshipFrom("Ghost");
@@ -208,7 +238,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void acceptFriendshipFromWithoutPendingRequestDoesNotAddFriends() {
+	public void acceptFriendshipFromWithoutPendingRequestDoesNotAddFriends() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(her);
 		sn.acceptFriendshipFrom("Hakan");
@@ -217,7 +247,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void acceptAllFriendshipsToMakesAllRequestersFriends() {
+	public void acceptAllFriendshipsToMakesAllRequestersFriends() throws NoUserLoggedInException {
 		Account another = joinHakanCecileAndSerra();
 		sn.login(her);
 		sn.sendFriendshipTo("Hakan");
@@ -230,7 +260,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void acceptAllFriendshipsToNullDoesNothing() {
+	public void acceptAllFriendshipsToNullDoesNothing() throws NoUserLoggedInException {
 		Account another = joinHakanCecileAndSerra();
 		sn.login(her);
 		sn.sendFriendshipTo("Hakan");
@@ -243,7 +273,7 @@ public class SocialNetworkTest {
 
 
 	@Test
-	public void acceptAllFriendshipsToClearsIncomingRequests() {
+	public void acceptAllFriendshipsToClearsIncomingRequests() throws NoUserLoggedInException {
 		Account another = joinHakanCecileAndSerra();
 		sn.login(her);
 		sn.sendFriendshipTo("Hakan");
@@ -255,7 +285,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void acceptAllFriendshipsToRemovesMeFromRequestersOutgoingRequests() {
+	public void acceptAllFriendshipsToRemovesMeFromRequestersOutgoingRequests() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(her);
 		sn.sendFriendshipTo("Hakan");
@@ -265,7 +295,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void acceptAllFriendshipsToWithNoPendingRequestsLeavesFriendsUnchanged() {
+	public void acceptAllFriendshipsToWithNoPendingRequestsLeavesFriendsUnchanged() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.acceptAllFriendships();
@@ -273,7 +303,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void rejectFriendshipFromRemovesTargetFromOutgoingRequests() {
+	public void rejectFriendshipFromRemovesTargetFromOutgoingRequests() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.sendFriendshipTo("Cecile");
@@ -283,7 +313,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void rejectFriendshipFromNullDoesNothing() {
+	public void rejectFriendshipFromNullDoesNothing() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.sendFriendshipTo("Cecile");
@@ -293,7 +323,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void rejectAllFriendshipsToClearsIncomingRequests() {
+	public void rejectAllFriendshipsToClearsIncomingRequests() throws NoUserLoggedInException {
 		Account another = joinHakanCecileAndSerra();
 		sn.login(me);
 		sn.sendFriendshipTo("Cecile");
@@ -306,7 +336,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void rejectAllFriendshipsToNullDoesNothing() {
+	public void rejectAllFriendshipsToNullDoesNothing() throws NoUserLoggedInException {
 		Account another = joinHakanCecileAndSerra();
 		sn.login(me);
 		sn.sendFriendshipTo("Cecile");
@@ -318,7 +348,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void rejectAllFriendshipsToClearsOutgoingRequests() {
+	public void rejectAllFriendshipsToClearsOutgoingRequests() throws NoUserLoggedInException {
 		Account another = joinHakanCecileAndSerra();
 		sn.login(me);
 		sn.sendFriendshipTo("Cecile");
@@ -333,7 +363,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void autoAcceptFriendshipWhenBecomeFriends() {
+	public void autoAcceptFriendshipWhenBecomeFriends() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.autoAcceptFriendships();
@@ -346,19 +376,23 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void autoAcceptFriendshipWithNullDoesNothing() {
+	public void autoAcceptFriendshipWithoutLoggedInUser() throws NoUserLoggedInException {
 		joinHakanAndCecile();
-		sn.autoAcceptFriendships();
-		assertFalse(me.hasFriend("Cecile"));
-		assertFalse(me.hasFriend("Hakan"));
-		sn.login(her);
-		sn.sendFriendshipTo("Hakan");
-		assertFalse(me.hasFriend("Cecile"));
-		assertFalse(her.hasFriend("Hakan"));
+		try {
+			sn.autoAcceptFriendships();
+			fail("Expected NoUserLoggedInException to be thrown");
+		} catch (NoUserLoggedInException e) {
+			assertFalse(me.hasFriend("Cecile"));
+			assertFalse(me.hasFriend("Hakan"));
+			sn.login(her);
+			sn.sendFriendshipTo("Hakan");
+			assertFalse(me.hasFriend("Cecile"));
+			assertFalse(her.hasFriend("Hakan"));
+		}
 	}
 	
 	@Test
-	public void autoAcceptFriendshipWhenAlreadyFriends() {
+	public void autoAcceptFriendshipWhenAlreadyFriends() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.autoAcceptFriendships();
@@ -374,7 +408,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void cancelAutoAcceptRequiresExplicitAcceptanceForFutureRequests() {
+	public void cancelAutoAcceptRequiresExplicitAcceptanceForFutureRequests() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.autoAcceptFriendships();
@@ -387,7 +421,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void cancelAutoAcceptStillAllowsExplicitAccept() {
+	public void cancelAutoAcceptStillAllowsExplicitAccept() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.autoAcceptFriendships();
@@ -401,7 +435,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void cancelAutoAcceptAppliesOnlyToLoggedInMember() {
+	public void cancelAutoAcceptAppliesOnlyToLoggedInMember() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.autoAcceptFriendships();
@@ -413,7 +447,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void cancelFriendshipRemovesEachOtherFromFriends() {
+	public void cancelFriendshipRemovesEachOtherFromFriends() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.sendFriendshipTo("Cecile");
@@ -427,7 +461,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void cancelFriendshipWhenNotFriends() {
+	public void cancelFriendshipWhenNotFriends() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		assertFalse(me.hasFriend("Cecile"));
 		sn.login(me);
@@ -437,7 +471,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void cancelMyselfFromFriends() {
+	public void cancelMyselfFromFriends() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.sendFriendshipTo("Cecile");
@@ -452,7 +486,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void cancelFriendshipFromNonExistingAccount() {
+	public void cancelFriendshipFromNonExistingAccount() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.sendFriendshipTo("Cecile");
@@ -466,7 +500,7 @@ public class SocialNetworkTest {
 	}
 	
 	@Test 
-	public void leaveNetworkRemovesMeFromFriends() {
+	public void leaveNetworkRemovesMeFromFriends() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.sendFriendshipTo("Cecile");
@@ -476,11 +510,16 @@ public class SocialNetworkTest {
 		sn.login(me);
 		sn.leave();
 		assertFalse(her.hasFriend("Hakan"));
-		assertNull(sn.getLoggedInUser());
+		try {
+			sn.getLoggedInUser();
+			fail("Expected NoUserLoggedInException to be thrown");
+		} catch (NoUserLoggedInException e) {
+			// Expected exception, test passes
+		}
 	}
 
 	@Test
-	public void leaveNetworkRemovesMeFromIncomingRequest() {
+	public void leaveNetworkRemovesMeFromIncomingRequest() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.sendFriendshipTo("Cecile");
@@ -490,7 +529,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void leaveNetworkRemovesMeFromOutgoingRequest() {
+	public void leaveNetworkRemovesMeFromOutgoingRequest() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(her);
 		sn.sendFriendshipTo("Hakan");
@@ -501,19 +540,24 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void leaveNetworkWithNullDoesNothing() {
+	public void leaveNetworkWithoutLoginThrowsException() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		her.requestFriendship(me);
 		me.friendshipAccepted(her);
 		assertTrue(me.hasFriend("Cecile"));
 		assertTrue(her.hasFriend("Hakan"));
-		sn.leave();
-		assertTrue(me.hasFriend("Cecile"));
-		assertTrue(her.hasFriend("Hakan"));
+		try {
+			sn.leave();
+			fail("Expected NoUserLoggedInException to be thrown");
+		} catch (NoUserLoggedInException e) {
+			// Expected exception, test passes
+			assertTrue(me.hasFriend("Cecile"));
+			assertTrue(her.hasFriend("Hakan"));
+		}
 	}
 
 	@Test
-	public void blockedMemberDoesNotSeeBlockerInListMembers() {
+	public void blockedMemberDoesNotSeeBlockerInListMembers() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.block("Cecile");
@@ -524,7 +568,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void blockedMemberHasMemberReturnsFalseForBlocker() {
+	public void blockedMemberHasMemberReturnsFalseForBlocker() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.block("Cecile");
@@ -534,7 +578,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void blockedMemberCannotSendFriendshipToBlocker() {
+	public void blockedMemberCannotSendFriendshipToBlocker() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.block("Cecile");
@@ -546,7 +590,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void blockerStillSeesBlockedMember() {
+	public void blockerStillSeesBlockedMember() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.block("Cecile");
@@ -555,19 +599,24 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void blockWithoutLoginDoesNothing() {
+	public void blockWithoutLoginDoesNothing() throws NoUserLoggedInException {
 		joinHakanAndCecile();
-		sn.block("Cecile");
-		sn.login(her);
-		assertTrue(sn.listMembers().contains("Hakan"));
-		assertTrue(sn.hasMember("Hakan"));
-		sn.login(me);
-		assertTrue(sn.listMembers().contains("Cecile"));
-		assertTrue(sn.hasMember("Cecile"));
+		try {
+			sn.block("Cecile");
+			fail("Expected NoUserLoggedInException to be thrown");
+		} catch (NoUserLoggedInException e) {
+			// Expected exception, test passes
+			sn.login(her);
+			assertTrue(sn.listMembers().contains("Hakan"));
+			assertTrue(sn.hasMember("Hakan"));
+			sn.login(me);
+			assertTrue(sn.listMembers().contains("Cecile"));
+			assertTrue(sn.hasMember("Cecile"));
+		}
 	}
 
 	@Test
-	public void blockNullUnknownOrSelfLeavesMembersVisible() {
+	public void blockNullUnknownOrSelfLeavesMembersVisible() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.block(null);
@@ -580,7 +629,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void blockingSameMemberTwiceBehavesLikeBlockingOnce() {
+	public void blockingSameMemberTwiceBehavesLikeBlockingOnce() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.block("Cecile");
@@ -594,7 +643,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void unblockMakesBlockerVisibleInListMembersAgain() {
+	public void unblockMakesBlockerVisibleInListMembersAgain() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.block("Cecile");
@@ -604,7 +653,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void unblockMakesHasMemberTrueForPreviouslyBlockedViewer() {
+	public void unblockMakesHasMemberTrueForPreviouslyBlockedViewer() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.block("Cecile");
@@ -614,7 +663,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void unblockAllowsFriendshipRequestAndAccept() {
+	public void unblockAllowsFriendshipRequestAndAccept() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.block("Cecile");
@@ -628,17 +677,22 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void unblockWithoutLoginDoesNotLiftExistingBlock() {
+	public void unblockWithoutLoginDoesNotLiftExistingBlock() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		me.block("Cecile");
-		sn.unblock("Cecile");
-		sn.login(her);
-		assertFalse(sn.hasMember("Hakan"));
-		assertFalse(sn.listMembers().contains("Hakan"));
+		try {
+			sn.unblock("Cecile");
+			fail("Expected NoUserLoggedInException to be thrown");
+		} catch (NoUserLoggedInException e) {
+			// Expected exception, test passes
+			sn.login(her);
+			assertFalse(sn.hasMember("Hakan"));
+			assertFalse(sn.listMembers().contains("Hakan"));
+		}
 	}
 
 	@Test
-	public void unblockUnknownNullOrNeverBlockedDoesNotThrow() {
+	public void unblockUnknownNullOrNeverBlockedDoesNotThrow() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.unblock(null);
@@ -650,7 +704,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void unblockOneMemberLeavesOtherBlockInPlace() {
+	public void unblockOneMemberLeavesOtherBlockInPlace() throws NoUserLoggedInException {
 		Account another = joinHakanCecileAndSerra();
 		sn.login(me);
 		sn.block("Cecile");
@@ -663,7 +717,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void recommendFriendsIncludesMemberWithExactlyTwoMutualFriends() {
+	public void recommendFriendsIncludesMemberWithExactlyTwoMutualFriends() throws NoUserLoggedInException {
 		Account another = joinHakanCecileAndSerra();
 		Account him = sn.join("Rafal");
 		sn.login(me);
@@ -683,20 +737,25 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void recommendFriendsWithoutLoginReturnsNull() {
+	public void recommendFriendsWithoutLoginThrowsException() throws NoUserLoggedInException {
 		joinHakanAndCecile();
-		assertNull(sn.recommendFriends());
+		try {
+			sn.recommendFriends();
+			fail("Expected NoUserLoggedInException to be thrown");
+		} catch (NoUserLoggedInException e) {
+			// Expected exception, test passes
+		}
 	}
 
 	@Test
-	public void recommendFriendsWithLoginAccountWithNoFriendsReturnsEmptySet() {
+	public void recommendFriendsWithLoginAccountWithNoFriendsReturnsEmptySet() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		assertTrue(sn.recommendFriends().size() == 0);
 	}
 
 	@Test
-	public void recommendFriendsWithFriendWhoSharesExactlyOneMutualFriends() {
+	public void recommendFriendsWithFriendWhoSharesExactlyOneMutualFriends() throws NoUserLoggedInException {
 		Account another = joinHakanCecileAndSerra();
 		sn.login(me);
 		sn.sendFriendshipTo("Serra");
@@ -710,7 +769,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void recommendFriendsWithFriendWhoAlreadyHasTwoMutualFriends() {
+	public void recommendFriendsWithFriendWhoAlreadyHasTwoMutualFriends() throws NoUserLoggedInException {
 		Account another = joinHakanCecileAndSerra();
 		Account him = sn.join("Rafal");
 		sn.login(me);
@@ -732,7 +791,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void recommendFriendsWithMoreThanTwoMutualFriends() {
+	public void recommendFriendsWithMoreThanTwoMutualFriends() throws NoUserLoggedInException {
 		Account another = joinHakanCecileAndSerra();
 		Account him = sn.join("Rafal");
 		Account student = sn.join("Jeffery");
@@ -759,7 +818,7 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void recommendFriendsDoesNotContainLoggedInUser() {
+	public void recommendFriendsDoesNotContainLoggedInUser() throws NoUserLoggedInException {
 		Account another = joinHakanCecileAndSerra();
 		Account him = sn.join("Rafal");
 		Account student = sn.join("Jeffery");
@@ -785,47 +844,51 @@ public class SocialNetworkTest {
 	}
 
 	@Test
-	public void recommendFriendsWithNoOtherUsersReturnEmptyList() {
+	public void recommendFriendsWithNoOtherUsersReturnEmptyList() throws NoUserLoggedInException {
 		me = sn.join("Hakan");
 		sn.login(me);
 		assertTrue(sn.recommendFriends().size() == 0);
 	}
 
 	@Test
-	public void blockFriendRemovesFriendship() {
+	public void blockFriendRemovesFriendship() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.sendFriendshipTo("Cecile");
 		sn.login(her);
 		sn.acceptFriendshipFrom("Hakan");
-		assertTrue(me.hasFriend("Hakan"));
+		assertTrue(me.hasFriend("Cecile"));
 		sn.block("Hakan");
 		assertFalse(me.hasFriend("Hakan"));
 		assertFalse(her.hasFriend("Cecile"));
 	}
 
 	@Test
-	public void blockAccountWithPendingRemovesRequest() {
+	public void blockAccountWithPendingRemovesRequest() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.sendFriendshipTo("Cecile");
 		sn.login(her);
-		assertTrue(me.getOutgoingRequests().contains("Hakan"));
+		assertTrue(me.getOutgoingRequests().contains("Cecile"));
+		assertTrue(her.getIncomingRequests().contains("Hakan"));
 		sn.block("Hakan");
-		assertFalse(me.getOutgoingRequests().contains("Hakan"));
+		assertFalse(me.getOutgoingRequests().contains("Cecile"));
+		assertFalse(her.getIncomingRequests().contains("Hakan"));
 		assertFalse(me.hasFriend("Cecile"));
 		assertFalse(her.hasFriend("Hakan"));
 	}
 
 	@Test
-	public void blockAccountAfterSendingRequestRemovesIt() {
+	public void blockAccountAfterSendingRequestRemovesRequest() throws NoUserLoggedInException {
 		joinHakanAndCecile();
 		sn.login(me);
 		sn.sendFriendshipTo("Cecile");
 		sn.login(her);
-		assertTrue(me.getOutgoingRequests().contains("Hakan"));
+		assertTrue(me.getOutgoingRequests().contains("Cecile"));
+		assertTrue(her.getIncomingRequests().contains("Hakan"));
 		sn.block("Hakan");
-		assertFalse(me.getOutgoingRequests().contains("Hakan"));
+		assertFalse(me.getOutgoingRequests().contains("Cecile"));
+		assertFalse(her.getIncomingRequests().contains("Hakan"));
 		assertFalse(me.hasFriend("Cecile"));
 		assertFalse(her.hasFriend("Hakan"));
 	}
