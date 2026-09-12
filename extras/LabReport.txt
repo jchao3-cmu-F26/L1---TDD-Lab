@@ -1,34 +1,57 @@
 LAB REPORT - TDD - L1
 
-Name: Timmy Lin
-Andrew ID: chunting
+Name: Timmy Lin, Jeffery Chao
+Andrew ID: chunting, jchao3
 
 1. Summary
 
-I completed T2 through T6 on SocialNetwork and Account. I wrote the test first, then the code.
-
-- T2: login(Account) and getLoggedInUser(). I changed the old tests to login first, then removed the methods that still took an Account.
-- T3: hasMember(String)
-- T4: cancelAutoAcceptFriendships()
-- T5: block(String)
-- T6: unblock(String)
-
-I wrote 26 new tests: 5 for login, 4 for hasMember, 4 for cancel auto-accept, 7 for block, 6 for unblock. I also updated the older SocialNetwork tests so they login before they send requests or leave. AccountTest plus SocialNetworkTest is 94 tests, all passing. I stopped before T7.
+Setup the new environment first
+completed the work by applying TDD, test first -> then code
+we first followed T2 and write new test and modify some old tests
+remove methods that requires Account
+Start building login and make sure the tests passed
+Implement tests for T3 - T6
+These functions seem to be very related so we decided to include them to the current scope
+Build up the functions from T3 - T6 and make sure the tests passed
+write tests for T7 -> build T7 -> pass test
+same approach for T8
+T9 was more time consuming because it affects the entire scope
+Start by going throw all current tests
+add throw exception to tests that utilizes functions that requires login
+spot multiple errors in previous tests due to updated login functions
+update older tests to match new rules
+modify ISocialNetwork and SocialNetwork
+try passing tests
 
 2. What worked well?
 
 Doing one failing test at a time kept me from rewriting listMembers, hasMember, and sendFriendshipTo in the same edit.
-
-The first block test only checked listMembers: after Hakan blocked Cecile, she did not see "Hakan". I left hasMember alone until its test failed. sendFriendshipTo still delivered a request until I added blockedMemberCannotSendFriendshipToBlocker. For unblock, the first test threw UnsupportedOperationException. I only removed the name from the blocked set. After that, Cecile could see Hakan again and send a request. I did not add new visibility code for T6.
+The first block test only checked listMembers: after Hakan blocked Cecile, she did not see "Hakan". I left hasMember alone until its test failed. 
+sendFriendshipTo still delivered a request until I added blockedMemberCannotSendFriendshipToBlocker. 
+For unblock, the first test threw UnsupportedOperationException. I only removed the name from the blocked set. 
+After that, Cecile could see Hakan again and send a request. I did not add new visibility code for T6.
+T7 and T8
 
 3. What didn't work well?
 
 The hard part was inventing the edge tests, not writing the production code.
-
-For block I saw the main case quickly: Hakan blocks Cecile, she cannot see him. I was slower on the rest. Do I test block with no one logged in? block(null)? a name that never joined? blocking myself? blocking the same person twice? I often wrote those tests after the main path was already green, so they passed on the first run. Same pattern on login: the happy path was obvious; null and an unknown account were not.
+For block I saw the main case quickly: Hakan blocks Cecile, she cannot see him. 
+I was slower on the rest. Do I test block with no one logged in? block(null)? a name that never joined? blocking myself? blocking the same person twice? 
+I often wrote those tests after the main path was already green, so they passed on the first run. 
+Same pattern on login: the happy path was obvious; null and an unknown account were not.
+the difficult part is to imagine/simulate what should happen
+trying to design the workflow in my mind without actual functions built and only tests is an approach that we've never used before
+T9 also didnt work well
+I was not familar with exception workflow, so a large amount of tests failed even after updates
+fixing these tests are time consuming since T9 requires me to modify many existing functions/tests
 
 4. How would you do it differently next time when applying TDD?
 
-Before the first test I would write a short list of edges: no login, null, unknown name, self, and repeat. Each of those should fail once before I add the corresponding if-return. I would not save them for the end, when the code already handles them by accident.
+Before the first test I would write a short list of edges: no login, null, unknown name, self, and repeat. Each of those should fail once before I add the corresponding if-return. 
+I would not save them for the end, when the code already handles them by accident.
+Doing T1 - T9 one by one may not be a great idea
+I will try to compile all the instructions first then make a workflow
+Follow the workflow to create tests 
+This could prevent huge changes to existing codespace such as T9
 
 5. Comments and Suggestions on the Lab (Optional)
