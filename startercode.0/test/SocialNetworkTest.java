@@ -791,6 +791,45 @@ public class SocialNetworkTest {
 		assertTrue(sn.recommendFriends().size() == 0);
 	}
 
+	@Test
+	public void blockFriendRemovesFriendship() {
+		joinHakanAndCecile();
+		sn.login(me);
+		sn.sendFriendshipTo("Cecile");
+		sn.login(her);
+		sn.acceptFriendshipFrom("Hakan");
+		assertTrue(me.hasFriend("Hakan"));
+		sn.block("Hakan");
+		assertFalse(me.hasFriend("Hakan"));
+		assertFalse(her.hasFriend("Cecile"));
+	}
+
+	@Test
+	public void blockAccountWithPendingRemovesRequest() {
+		joinHakanAndCecile();
+		sn.login(me);
+		sn.sendFriendshipTo("Cecile");
+		sn.login(her);
+		assertTrue(me.getOutgoingRequests().contains("Hakan"));
+		sn.block("Hakan");
+		assertFalse(me.getOutgoingRequests().contains("Hakan"));
+		assertFalse(me.hasFriend("Cecile"));
+		assertFalse(her.hasFriend("Hakan"));
+	}
+
+	@Test
+	public void blockAccountAfterSendingRequestRemovesIt() {
+		joinHakanAndCecile();
+		sn.login(me);
+		sn.sendFriendshipTo("Cecile");
+		sn.login(her);
+		assertTrue(me.getOutgoingRequests().contains("Hakan"));
+		sn.block("Hakan");
+		assertFalse(me.getOutgoingRequests().contains("Hakan"));
+		assertFalse(me.hasFriend("Cecile"));
+		assertFalse(her.hasFriend("Hakan"));
+	}
+
 	private void joinHakanAndCecile() {
 		me = sn.join("Hakan");
 		her = sn.join("Cecile");
