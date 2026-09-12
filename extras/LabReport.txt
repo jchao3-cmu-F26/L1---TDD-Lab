@@ -53,5 +53,8 @@ Doing T1 - T9 one by one may not be a great idea
 I will try to compile all the instructions first then make a workflow
 Follow the workflow to create tests 
 This could prevent huge changes to existing codespace such as T9
+We didnt use the test doubles techniques we learned in class in this project
+After reviewing everything again in the end of the task, I realize how test doubles may be useful and some possible ways to implement them
+We will try to use test doubles to make our tests more readable and logical in future tasks
 
 5. Comments and Suggestions on the Lab (Optional)
