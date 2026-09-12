@@ -755,6 +755,7 @@ public class SocialNetworkTest {
 		sn.acceptFriendshipFrom("Cecile");
 		sn.login(me);
 		assertTrue(sn.recommendFriends().size() == 1);
+		assertTrue(sn.recommendFriends().contains("Cecile"));
 	}
 
 	@Test
